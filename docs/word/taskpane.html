@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ویراستار</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="taskpane.css">
+</head>
+<body>
+
+<div id="unsupported" class="notice" style="display:none">
+  <h1>ویراستار</h1>
+  <p>این نسخهٔ ورد برای اجرای ویراستار کهنه است. ویراستار به ورد ۲۰۲۱ یا تازه‌تر، ورد مایکروسافت ۳۶۵ یا ورد در مرورگر نیاز دارد.</p>
+</div>
+
+<div id="outside" class="notice" style="display:none">
+  <h1>ویراستار</h1>
+  <p>این صفحه پنجرهٔ کناریِ افزونهٔ ورد است و باید درونِ ورد باز شود.</p>
+  <p><a href="../index.html#try">بازبین را همین‌جا در مرورگر بیازمایید</a> یا <a href="https://github.com/roozbehks/AI_Editor_for_Persian_Language/tree/main/word-addin">راهنمای نصب افزونه</a> را ببینید.</p>
+</div>
+
+<div id="app" class="app" style="display:none">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true">و</span><h1>ویراستار</h1></div>
+    <div class="top-actions">
+      <button type="button" id="btnScan" class="icon" title="بازبینی دوباره" aria-label="بازبینی دوباره">⟳</button>
+      <button type="button" id="btnSettings" class="icon" title="تنظیم‌ها" aria-label="تنظیم‌ها" aria-expanded="false" aria-controls="settings">⚙</button>
+    </div>
+  </header>
+
+  <p id="status" class="status" role="status" aria-live="polite">موتور بازبینی بارگیری می‌شود…</p>
+
+  <section id="settings" class="settings" hidden>
+    <label class="opt"><input type="checkbox" id="optTrack"> <span>اصلاح‌ها را با «ردگیری تغییرها» ثبت کن<small>هر اصلاح پیشنهاد می‌ماند تا خودتان بپذیرید یا رد کنید.</small></span></label>
+    <label class="opt"><input type="checkbox" id="optBulkW"> <span>دکمهٔ اصلاح یکجا هشدارهای دارای جایگزین را هم درست کند</span></label>
+    <label class="opt"><input type="checkbox" id="optFollow" checked> <span>فهرست همراه مکان‌نما جابه‌جا شود</span></label>
+    <label class="opt"><input type="checkbox" id="optStrict"> <span>موردهای اختلافی را هم نشان بده</span></label>
+    <label class="opt"><input type="checkbox" id="optVerbless"> <span>جملهٔ بی‌فعل را هم بگیر</span></label>
+    <label class="opt" id="rowUnderline"><input type="checkbox" id="optUnderline"> <span>زیر هر مورد در خودِ متن خط بکش<small>آزمایشی است و فقط در وردِ دارای اشتراک مایکروسافت ۳۶۵ کار می‌کند.</small></span></label>
+
+    <div class="house">
+      <label for="houseJson"><strong>شیوهٔ خانگی</strong><small>اگر پروندهٔ house.json دارید متنش را اینجا بچسبانید. فقط در همین رایانه نگه داشته می‌شود.</small></label>
+      <textarea id="houseJson" dir="ltr" spellcheck="false" rows="5" placeholder='{"no_parentheses": true, "words": {"تکنولوژی": "فناوری"}}'></textarea>
+      <div class="row">
+        <button type="button" id="btnHouseSave">ذخیره</button>
+        <button type="button" id="btnHouseClear" class="ghost">پاک‌کردن</button>
+        <span id="houseMsg" class="hint" role="status"></span>
+      </div>
+    </div>
+
+    <p class="about"><span id="about"></span> · <a href="https://roozbehks.github.io/AI_Editor_for_Persian_Language/" target="_blank" rel="noopener">راهنما</a> · <a href="https://github.com/roozbehks/AI_Editor_for_Persian_Language" target="_blank" rel="noopener">منبع برنامه</a></p>
+  </section>
+
+  <div class="bar">
+    <div class="chips" role="group" aria-label="نمایش سطح‌ها">
+      <button type="button" class="chip lv-E" data-level="E" aria-pressed="true"><b id="nE">۰</b> خطا</button>
+      <button type="button" class="chip lv-W" data-level="W" aria-pressed="true"><b id="nW">۰</b> هشدار</button>
+      <button type="button" class="chip lv-C" data-level="C" aria-pressed="true"><b id="nC">۰</b> وارسی</button>
+    </div>
+    <label class="switch" title="با هر تغییر در متن دوباره بازبینی شود"><input type="checkbox" id="optLive" checked> همزمان</label>
+  </div>
+
+  <button type="button" id="btnFixAll" class="primary" disabled>خطای مکانیکی‌ای نیست</button>
+
+  <div id="list" class="list" aria-label="یافته‌ها"></div>
+
+  <p id="note" class="note" hidden></p>
+</div>
+
+<script>
+/* ES5 on purpose: an old Word webview must be able to read this far and show the notice. */
+(function () {
+  var ok = typeof WebAssembly === 'object' && typeof Promise === 'function' &&
+           typeof Worker === 'function' && typeof fetch === 'function' && typeof Map === 'function';
+  if (!ok) {
+    document.getElementById('unsupported').style.display = 'block';
+    return;
+  }
+  var files = ['core.js', 'taskpane.js'];
+  (function next(i) {
+    if (i >= files.length) { return; }
+    var s = document.createElement('script');
+    s.src = files[i];
+    s.onload = function () { next(i + 1); };
+    document.body.appendChild(s);
+  }(0));
+}());
+</script>
+</body>
+</html>

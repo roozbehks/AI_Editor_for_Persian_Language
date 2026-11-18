@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Pyodide for the add-in tests. The add-in itself loads Pyodide from a CDN.",
+  "dependencies": {
+    "pyodide": "0.26.4"
+  }
+}
