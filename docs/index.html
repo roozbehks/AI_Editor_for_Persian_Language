@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ویراستار هوشواره</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;700&family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* یک ستونِ خواندن؛ ابزارها درون همان ستون. نقش‌مایه: نشانه‌های نمونه‌خوانی (خط‌خوردگی و افزوده). */
+  --paper: #f5f3ea;
+  --surface: #fffefa;
+  --ink: #1b2233;
+  --muted: #5b6272;
+  --line: #dcd6c2;
+  --accent: #1c39bb;
+  --accent-ink: #ffffff;
+  --mark: #8a1c2b;
+  --err: #b3261e;
+  --warn: #8f5400;
+  --chk: #4a5873;
+  --display: 'Markazi Text', 'Vazirmatn', 'Noto Naskh Arabic', serif;
+  --body: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12151c; --surface: #1a1f2a; --ink: #ebe7da; --muted: #a3a9b6; --line: #2e3545;
+    --accent: #93a6ff; --accent-ink: #10131a; --mark: #f0949d; --err: #ff8a80; --warn: #f2b45c; --chk: #a9b6d0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12151c; --surface: #1a1f2a; --ink: #ebe7da; --muted: #a3a9b6; --line: #2e3545;
+  --accent: #93a6ff; --accent-ink: #10131a; --mark: #f0949d; --err: #ff8a80; --warn: #f2b45c; --chk: #a9b6d0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.95; }
+.wrap { max-width: 47rem; margin: 0 auto; padding: 0 20px 72px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.3; text-wrap: balance; margin: 0; }
+h1 { font-size: 3.6rem; letter-spacing: 0; }
+h2 { font-size: 2.2rem; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+h3 { font-size: 1.6rem; margin-top: 30px; }
+p { margin: 12px 0; }
+a { color: var(--accent); }
+code, pre { font-family: var(--mono); font-size: .86em; }
+code { background: color-mix(in srgb, var(--line) 55%, transparent); padding: 1px 5px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+header { padding: 56px 0 8px; }
+.lead { font-size: 1.12rem; max-width: 40rem; }
+.proof { margin: 28px 0 8px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.proof p { margin: 0; }
+.proof .label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: 2px; }
+.proof del { color: var(--mark); text-decoration-thickness: 1.5px; }
+.proof ins { color: var(--accent); text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.proof .after { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); font-weight: 500; }
+.ways { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); }
+.ways li { display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.ways strong { font-family: var(--display); font-size: 1.45rem; line-height: 1.3; }
+.ways span { color: var(--muted); font-size: .93rem; line-height: 1.75; flex: 1; }
+.btn { font: inherit; font-size: .95rem; font-weight: 500; cursor: pointer; border-radius: 5px; padding: 8px 16px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); text-decoration: none; display: inline-block; text-align: center; line-height: 1.6; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: .55; cursor: progress; }
+.btn:focus-visible, .guide:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+.note { color: var(--muted); font-size: .9rem; }
+textarea { width: 100%; min-height: 9.5rem; padding: 14px 16px; font: inherit; line-height: 2; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; resize: vertical; }
+.result { margin-top: 18px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.result h3 { margin-top: 0; font-size: 1.35rem; }
+.fixed { white-space: pre-wrap; margin: 8px 0 4px; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; padding: 0; list-style: none; font-size: .88rem; }
+.counts li { padding: 2px 10px; border-radius: 99px; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.finds { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.finds li { padding: 10px 14px; border-inline-start: 4px solid var(--chk); background: color-mix(in srgb, var(--line) 28%, transparent); border-radius: 0 4px 4px 0; font-size: .95rem; line-height: 1.85; }
+.finds li.W { border-inline-start-color: var(--warn); }
+.finds li.E { border-inline-start-color: var(--err); }
+.lv { font-size: .78rem; font-weight: 700; margin-inline-end: 8px; color: var(--chk); }
+.W .lv { color: var(--warn); }
+.E .lv { color: var(--err); }
+.ctx { display: block; color: var(--muted); font-size: .9rem; }
+.ctx mark { background: transparent; color: var(--mark); font-weight: 700; border-bottom: 1.5px solid currentColor; }
+pre.prompt { direction: rtl; text-align: right; font-family: var(--body); font-size: .95rem; line-height: 2; white-space: pre-wrap; margin: 12px 0; padding: 18px 20px; max-height: 26rem; overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.core ul, .core ol { padding-inline-start: 1.3rem; margin: 10px 0; }
+.core li { margin: 6px 0; }
+.core h3 { font-size: 1.7rem; }
+.guides { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.guide { width: 100%; height: 100%; text-align: start; font: inherit; color: var(--ink); cursor: pointer; padding: 12px 16px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; gap: 2px; }
+.guide[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+.g-title { font-family: var(--display); font-size: 1.4rem; font-weight: 700; line-height: 1.4; }
+.g-desc { color: var(--muted); font-size: .88rem; line-height: 1.7; }
+#reader { margin-top: 18px; padding: 8px 22px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+#reader[hidden] { display: none; }
+#reader h1 { font-size: 2.1rem; margin-top: 18px; }
+#reader h2 { font-size: 1.7rem; margin-top: 30px; padding-top: 14px; }
+.tbl { overflow-x: auto; margin: 14px 0; }
+table { border-collapse: collapse; width: 100%; font-size: .93rem; line-height: 1.8; }
+th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: start; vertical-align: top; }
+th { background: color-mix(in srgb, var(--line) 40%, transparent); font-weight: 700; }
+pre { direction: ltr; text-align: left; overflow-x: auto; padding: 12px 14px; background: color-mix(in srgb, var(--line) 35%, transparent); border-radius: 6px; line-height: 1.7; }
+pre code { background: none; padding: 0; }
+.dl { list-style: none; padding: 0; margin: 14px 0; display: grid; gap: 10px; }
+.dl li { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.dl .what { flex: 1 1 16rem; }
+.dl small { display: block; color: var(--muted); line-height: 1.7; }
+.save-only { display: none; }
+.can-save .save-only { display: inline-block; }
+.can-save .nosave-only { display: none; }
+footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+@media (max-width: 480px) { h1 { font-size: 2.8rem; } h2 { font-size: 1.9rem; } body { font-size: 16px; } }
+@media (prefers-reduced-motion: no-preference) { .btn, .guide { transition: background-color .15s, border-color .15s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>ویراستار هوشواره</h1>
+  <p class="lead">هوش مصنوعی فارسی را روان می‌نویسد، ولی ویراسته نمی‌نویسد: نیم‌فاصله جا می‌افتد، جمله بوی ترجمه می‌دهد و «می‌باشد» و «توسط» همه‌جا هست. این بسته قاعده‌های ویراستاران فارسی را طوری نوشته است که هوشواره بفهمد و به کار ببندد.</p>
+  <div class="proof" aria-label="نمونهٔ ویرایش">
+    <p><span class="label">پیش از ویرایش</span><del>لازم به ذکر است که</del> <del>پیشنهادات مربوطه</del> <del>توسط</del> کمیته <del>مورد بررسی قرار می گیرد</del>.</p>
+    <p class="after"><span class="label">پس از ویرایش</span>کمیته <ins>پیشنهادها</ins> را <ins>بررسی می‌کند</ins>.</p>
+  </div>
+  <ul class="ways">
+    <li><strong>دستور کوتاه</strong><span>برای هر هوشواره‌ای. یک صفحه قاعده که در دستورهای سفارشی می‌گذارید.</span><button type="button" class="btn" id="copy-prompt-top">کپی دستور</button></li>
+    <li><strong>مهارت Claude</strong><span>قاعده‌های هسته، شش راهنما و ابزار وارسی در یک بسته.</span><a class="btn ghost" href="#download">بارگیری بسته</a></li>
+    <li><strong>ابزار وارسی</strong><span>خطای رسم‌الخط را خودش درست می‌کند و ساخت‌های مشکوک را نشان می‌دهد.</span><a class="btn ghost" href="#try">همین‌جا امتحان کنید</a></li>
+    <li><strong>افزونهٔ ورد</strong><span>همین بازبین در پنجرهٔ کناریِ ورد، همزمان با نوشتن.</span><a class="btn ghost" href="#word">چگونه کار می‌کند</a></li>
+  </ul>
+</header>
+
+<section id="try">
+  <h2>همین‌جا امتحان کنید</h2>
+  <p>متن فارسی‌تان را بگذارید. ابزار خطاهای مکانیکی را درست می‌کند و آنچه را بازنویسی می‌خواهد نشان می‌دهد. متن از مرورگر شما بیرون نمی‌رود.</p>
+  <label for="src" class="note">متن شما</label>
+  <textarea id="src" dir="rtl" spellcheck="false">لازم به ذکر است که پیشنهادات مربوطه توسط کمیته مورد بررسی قرار می گیرد و نتیجه آن متعاقبا به اطلاع کارمندان محترم رسانده می شود. اگرچه این فرایند زمان بر می باشد , اما ما معتقدیم که کیفیت کار ها را بهتر میکند.</textarea>
+  <div class="row">
+    <button type="button" class="btn" id="run">وارسی و اصلاح</button>
+    <label class="note"><input type="checkbox" id="strict"> سخت‌گیرانه</label>
+    <span class="note" id="status" role="status" aria-live="polite"></span>
+  </div>
+  <div class="result" id="result">
+    <h3>متن اصلاح‌شده</h3>
+    <p class="fixed" id="fixed"></p>
+    <div class="row"><button type="button" class="btn ghost" id="copy-fixed">کپی متن اصلاح‌شده</button></div>
+    <ul class="counts" id="counts"></ul>
+    <ul class="finds" id="finds"></ul>
+  </div>
+  <p class="note">بار نخست موتور پایتون در مرورگر بار می‌شود و چند ثانیه طول می‌کشد. ابزار معنا و منطق و لحن را نمی‌بیند؛ بازخوانی هنوز لازم است.</p>
+</section>
+
+<section id="prompt">
+  <h2>دستور کوتاه برای هر هوشواره</h2>
+  <p>این متن را در بخش دستورهای سفارشی یا در آغاز گفت‌وگو با ChatGPT و Gemini و Copilot و Claude بگذارید. اگر شیوهٔ خانگی دارید، چند سطر زیرش اضافه کنید: واژه‌های برگزیده، املای دلخواه، آنچه نمی‌خواهید.</p>
+  <pre class="prompt" id="prompt-text" dir="rtl" tabindex="0">هر متن فارسی را مثل ویراستاری حرفه‌ای بنویس. قاعده‌ها:
+
+رسم‌الخط
+- نیم‌فاصله (U+200C) بگذار: می‌رود، نمی‌دانم، کتاب‌ها، آن‌ها، بزرگ‌تر، خانه‌ای، رفته‌اند، برنامه‌ریزی، کسب‌وکار، گفت‌وگو، به‌ویژه، به‌عنوان. پس از حرف جدا لازم نیست: کارها، دورتر.
+- پیوسته بنویس: اینکه، آنچه، اینجا، آنجا، بلکه، همچنین، بهتر، بیشتر، کمتر، برمی‌گردد.
+- «به»ی حرف اضافه جداست: به خانه، به نظر، به دست. «که» و «را» جداست.
+- کسرهٔ اضافه پس از «ه»: خانهٔ ما، دربارهٔ. همزه: سؤال، مسئله، مسئول، هیئت، تأثیر، مؤثر، رئیس، ارائه.
+- تنوین: حتماً، مثلاً، واقعاً. «گاهاً، دوماً، ناچاراً» غلط است.
+- «ی» و «ک» فارسی، ارقام فارسی (۱۲۳)، نشانه‌های فارسی (، ؛ ؟ « »). نشانه به واژهٔ پیش می‌چسبد و پس از آن یک فاصله می‌آید.
+
+جمله
+- هر جمله فعل خودش را دارد. فعل فقط وقتی حذف می‌شود که عینِ همان در جملهٔ هم‌پایه آمده باشد. تکه‌جملهٔ بی‌فعل ننویس، مگر در عنوان.
+- وجه وصفی نیاور («وارد شده، نشست» ← «وارد شد و نشست»).
+- «را» بلافاصله پس از مفعول می‌آید، نه پس از فعل.
+- اگر کنندهٔ کار را می‌گویی جمله را معلوم کن و «توسط» نیاور.
+- جمله را کوتاه کن و در هر جمله یک مطلب بگو. دو حرف ربط برای یک پیوند نیاور (اگرچه … اما).
+- «یک» را فقط برای شمار بیاور؛ نکره را با «ـی» بساز: «کتابی خریدم»، «مثل پزشک».
+
+واژه
+- ساده بنویس: است (نه می‌باشد)، کرد (نه نمود)، شد (نه گردید)، برای (نه جهتِ و در راستای)، دربارهٔ (نه در رابطه با).
+- درازنویسی نکن: «مورد بررسی قرار داد» ← «بررسی کرد»؛ «به عمل آورد» ← «کرد»؛ «دارای اهمیت است» ← «مهم است».
+- حشو را بردار: سؤال پرسیدن، سوابق گذشته، پس بنابراین، بر علیه، لازم به ذکر است.
+- «عدمِ …» را فارسی کن: «عدم حضور» ← «نیامدن»؛ «در صورت عدم پرداخت» ← «اگر پرداخت نشود».
+- جمع فارسی: پیشنهادها، گزارش‌ها، استادان. صفت مؤنث نمی‌شود: مدارک مربوط.
+- واژهٔ فارسیِ جاافتاده را بر وام‌واژه ترجیح بده، ولی واژهٔ ساختگی و نامأنوس نگذار.
+- واژهٔ گفتاری و شکسته در متن رسمی نمی‌آید.
+
+ترجمه از انگلیسی
+- معنا را بفهم و از نو به فارسی بگو؛ ساخت جملهٔ انگلیسی را منتقل نکن.
+- زنجیرهٔ اسم را فعل کن، ضمیر تکراری را بردار، «وجود دارد» و «به‌طورِ …» را کم کن.
+- فهرست کوتاه را با «و» ببند. اصطلاح و تصویر فرهنگی را با هم‌ارز فارسی بگو.
+- «می‌رود تا»، «نقش بازی کردن»، «روی کسی حساب کردن»، «در جریان گذاشتن»، «زیر سؤال بردن» گرته‌برداری است.
+
+پیش از تحویل یک بار مثل خواننده بخوان و بپرس: هر جمله فعل دارد؟ می‌توان ساده‌تر گفت؟ اگر انگلیسی نمی‌دانستم همین‌طور می‌گفتم؟ نیم‌فاصله و همزه و تنوین درست است؟
+اگر متن کسی را ویرایش می‌کنی صدای نویسنده را نگه دار، خطا را درست کن نه سلیقه را، و تغییرها را دسته‌بندی‌شده گزارش کن.</pre>
+  <div class="row"><button type="button" class="btn" id="copy-prompt">کپی دستور</button></div>
+</section>
+
+<section id="core" class="core">
+  <h2>قاعده‌های هسته</h2>
+  <p>این همان صفحه‌ای است که Claude هنگام نوشتن می‌خواند، پس خطابش به هوشواره است. شرح و جدول‌های کامل در شش راهنمای پایین آمده است.</p>
+  <h3>۱. رسم‌الخط</h3>
+<p>فارسی سه گونه فاصله دارد: فاصلهٔ کامل میان واژه‌ها، نیم‌فاصله (U+200C) میان اجزای یک واژه، و بی‌فاصله.</p>
+<ul>
+<li><strong>با نیم‌فاصله:</strong> «می» و «نمی» (می‌رود، نمی‌دانم) · «ها» (کتاب‌ها، آن‌ها) · «تر» و «ترین» (بزرگ‌تر؛ ولی بهتر، بیشتر، کمتر) · «ای، ام، ات، اش، اند» پس از «ه» (خانه‌ای، رفته‌اند) و «اند» پس از حرف چسبان (عبارت‌اند) · اجزای واژهٔ مرکب و مشتق (بی‌شک، هم‌نشین، دانش‌آموز، برنامه‌ریزی، کسب‌وکار، گفت‌وگو) · قید و حرف اضافهٔ مرکب با «به» (به‌ویژه، به‌عنوان، به‌صورت؛ ولی «به جای» و «به تدریج» را فرهنگ املایی جدا آورده است).</li>
+<li>پس از حرف جدا (ا د ذ ر ز ژ و) نیم‌فاصله لازم نیست: کارها، روزها، دورتر.</li>
+<li><strong>پیوسته:</strong> اینکه، آنکه، آنچه، اینجا، آنجا، چنانچه، بلکه، همین، همان، همچنین، همچنان، یکدیگر، همدیگر؛ پیشوند فعل (برمی‌گردد، درمی‌یابد، فرامی‌گیرد).</li>
+<li><strong>جدا با فاصلهٔ کامل:</strong> «به»ی حرف اضافه پیش از اسم (به خانه، به او، به نظر، به دست) · «که» (وقتی که، در حالی که؛ ولی چنان‌که) · «را» · «این» و «آن» پیش از اسم.</li>
+<li>کسرهٔ اضافه پس از «ه»ی ناملفوظ «هٔ» است (خانهٔ ما، دربارهٔ)، نه <code>ۀ</code> و نه <code>ه ی</code>. پس از «ا» و «و» «ی» می‌آید (پای، دانشجوی).</li>
+<li>همزه: سؤال، مسئله، مسئول، هیئت، تأثیر، مؤثر، رئیس، جزئی، ارائه، منشأ. همزهٔ پایانی پس از «ا» نوشته نمی‌شود (ابتدا، املا، انشا) و در اضافه «ی» می‌گیرد (ابتدای کار).</li>
+<li>تنوین را بگذار: حتماً، مثلاً، واقعاً، لطفاً. تنوین با واژهٔ فارسی نمی‌آید: گاهی، دوم، به‌ناچار.</li>
+<li>«بیندازد، بیفتد، نیفتاد» درست است.</li>
+<li>«ی» و «ک» فارسی. در متن فارسی ارقام فارسی (۱۲۳)؛ رقم لاتین فقط در کد و نشانی و نام لاتین. ممیز «٫» و جداکنندهٔ هزارگان «٬».</li>
+<li>املای واژه را از «فرهنگ املایی» فرهنگستان بگیر: فناوری، ایدئال، ویدئو، حتی، به‌عنوان، به‌ویژه. جایی که خودِ فرهنگستان دو صورت را برابر می‌داند (فرایند و فرآیند، توفان و طوفان، اتو و اطو)، یکی را بردار و در کل متن نگه دار.</li>
+</ul>
+<h3>۲. جمله</h3>
+<ul>
+<li><strong>هر جمله فعل خودش را دارد.</strong> فعل فقط وقتی حذف می‌شود که عینِ همان در جملهٔ هم‌پایه آمده باشد. «گزارش تهیه و به مدیر تحویل دادند» نادرست است، چون «تهیه شد» با «دادند» یکی نیست؛ بنویس «گزارش تهیه شد و آن را به مدیر تحویل دادند». تکه‌جملهٔ بی‌فعل عادت انگلیسی است؛ فقط عنوان و برچسب بی‌فعل می‌ماند.</li>
+<li>وجه وصفی نیاور: «وارد اتاق شده، نشست» ← «وارد اتاق شد و نشست».</li>
+<li>«را» بلافاصله پس از مفعول می‌آید، نه پس از فعل: «کتابی را که خریده بودم خواندم».</li>
+<li>اگر کنندهٔ کار را می‌گویی جمله را معلوم کن: «این طرح توسط گروه تهیه شد» ← «گروه این طرح را تهیه کرد».</li>
+<li>نهادِ جمعِ جاندار فعل جمع می‌گیرد؛ «هر» و «هیچ‌کس» فعل مفرد.</li>
+<li>جملهٔ بلند را بشکن و در هر جمله یک مطلب بگو. «که»های پیاپی و ویرگول‌های پیاپی نشانهٔ جملهٔ درهم است.</li>
+<li>وابسته را کنار هسته‌اش بگذار و نهاد را از فعل دور نکن تا جمله دو جور خوانده نشود.</li>
+<li>دو حرف ربط برای یک پیوند نیاور: «اگرچه … اما»، «چون … لذا».</li>
+<li>«یک» را برای شمار بیاور. نکره را با «ـی» بساز یا بی‌نشانه بگذار: «کتابی خریدم»، «مثل پزشک»، «مدیر خوب شنوندهٔ خوبی است».</li>
+</ul>
+<h3>۳. واژه</h3>
+<ul>
+<li><strong>ساده بنویس:</strong> است، نه می‌باشد · کرد، نه نمود · شد، نه گردید · برای، نه جهتِ و در راستای · دربارهٔ، نه در رابطه با و در خصوصِ · با وجود این، نه با این وجود · دیدگاه، نه نقطه‌نظر · «لازم به ذکر است» را بردار.</li>
+<li><strong>درازنویسی نکن:</strong> «مورد بررسی قرار داد» ← «بررسی کرد» · «به عمل آورد» ← «کرد» · «دارای اهمیت است» ← «مهم است» · «اقدام به خرید کرد» ← «خرید» · «قادر به پاسخ نیست» ← «نمی‌تواند پاسخ دهد».</li>
+<li><strong>حشو را بردار:</strong> سؤال پرسیدن، سوابق گذشته، پس بنابراین، سایرِ … دیگر، بر علیه، سنِ ۲۰ سالگی، تکرارِ دوباره.</li>
+<li><strong>«عدمِ» را فارسی کن:</strong> «عدم حضور» ← «نیامدن، غیبت» · «عدم امکان» ← «ناممکن بودن» · «در صورت عدم پرداخت» ← «اگر پرداخت نشود».</li>
+<li><strong>جمع فارسی:</strong> پیشنهادها، گزارش‌ها، استادان، بازرسان. صفت مؤنث نمی‌شود: «مدارک مربوط»، «نامهٔ رسیده».</li>
+<li><strong>گرته‌برداری نکن:</strong> «نقش بازی کردن» ← «نقش داشتن» · «روی کسی حساب کردن» ← «به کسی تکیه کردن» · «می‌رود تا تبدیل شود» ← «نزدیک است تبدیل شود» · «در جریان گذاشتن» ← «آگاه کردن» · «زیر سؤال بردن» ← «تردید کردن در».</li>
+<li><strong>وام‌واژه:</strong> اگر فرهنگستان برابری تصویب کرده، همان انتخاب نخست است (فناوری، رایانه، وبگاه، پیوند، رایانامه)؛ اگر خواننده هنوز با آن آشنا نیست، بار نخست اصل واژه را کنارش بیاور. جایی که برابر مصوب نیست، معادل فارسیِ جاافتاده را بیاور (کارکنان، فرایند، نامزد، بازخورد) و واژهٔ من‌درآوردی نساز. تلفن و اینترنت و مدیریت می‌ماند؛ سره‌نویسیِ افراطی هم عیب است.</li>
+<li><strong>لحن یکدست:</strong> واژهٔ شکسته و گفتاری در متن رسمی نمی‌آید، و واژهٔ کهنه و ادیبانه در متن امروزی.</li>
+</ul>
+<h3>۴. نشانه‌گذاری و عدد</h3>
+<ul>
+<li>نشانه به واژهٔ پیش می‌چسبد و پس از آن یک فاصله می‌آید. درونِ گیومه و پرانتز فاصله نیست.</li>
+<li>نشانه‌های فارسی را بگذار: <code>،</code> <code>؛</code> <code>؟</code> <code>« »</code>.</li>
+<li>ویرگول کم بگذار: میان نهاد و فعل نمی‌آید و پیش از «و» و «که» معمولاً لازم نیست.</li>
+<li>تأکید را با واژه بساز، نه با «!!» و حروف سیاهِ پیاپی و کشیده.</li>
+<li>عدد یک تا نه و عددهای گرد را در متن روان می‌توان به حروف نوشت؛ اندازه و آمار و تاریخ با رقم. در جمله «۲۵ درصد» و در جدول «٪». تاریخ: «۲۷ آبان ۱۴۰۵». معدود مفرد می‌ماند: «سه کتاب».</li>
+<li>واژهٔ لاتین را فقط وقتی بیاور که لازم است: نخست معادل فارسی و سپس اصل در پرانتز، یک بار.</li>
+</ul>
+<h3>۵. از انگلیسی به فارسی</h3>
+<ul>
+<li>زنجیرهٔ اسم را فعل کن: «تحلیل بازار و تعریف عملیات» ← «بازار را تحلیل می‌کند و عملیات را تعریف می‌کند».</li>
+<li>ضمیر و «شما»ی تکراری را بردار؛ شناسهٔ فعل کافی است.</li>
+<li>«وجود دارد» را کم کن: «سه دلیل وجود دارد» ← «سه دلیل دارد». «می‌تواند» را جای «ممکن است» نگذار.</li>
+<li>قیدِ «به‌طورِ …» را ساده کن: «به‌طور کامل» ← «کاملاً» · «به‌صورت روزانه» ← «هر روز».</li>
+<li>فهرست کوتاه را با «و» ببند، نه با ویرگول و «و»ی پایانی. خط تیرهٔ میان‌جمله‌ای را جمله کن.</li>
+<li>آینده را بیشتر با مضارع بگو: «فردا برگزار می‌شود».</li>
+<li>اصطلاح و تصویرِ فرهنگی را ترجمه نکن؛ هم‌ارزِ فارسی‌اش را پیدا کن یا ساده بگو. واژه‌های دام را بشناس: experience، challenge، suffer from، key، leverage و مانند این‌ها (جدول در راهنمای «از انگلیسی به فارسی»).</li>
+</ul>
+<h3>هفت پرسش پایانی</h3>
+<ol>
+<li>هر جمله فعل دارد و فعلش با نهادش می‌خواند؟</li>
+<li>جمله‌ای هست که بتوان کوتاه‌تر و ساده‌تر گفت؟</li>
+<li>اگر انگلیسی نمی‌دانستم این جمله را همین‌طور می‌گفتم؟</li>
+<li>واژهٔ اداری یا قلمبه یا گفتاری هست که صورت سادهٔ رسمی دارد؟</li>
+<li>اصطلاح‌ها و نام‌ها و املاها در کل متن یکدست است؟</li>
+<li>ابزار اجرا شده و E و W صفر است؟</li>
+<li>لحن برای خوانندهٔ این متن درست است؟</li>
+</ol>
+</section>
+
+<section id="guides">
+  <h2>شش راهنما</h2>
+  <p>هر راهنما را فقط وقتی باید خواند که پرسشی در همان موضوع پیش بیاید. یکی را برگزینید تا همین‌جا باز شود.</p>
+  <ul class="guides">
+<li><button type="button" class="guide" data-path="references/rasm-ol-khat.md"><span class="g-title">رسم‌الخط</span><span class="g-desc">فاصله و نیم‌فاصله، وندها، واژهٔ مرکب، همزه، تنوین، املاهای دوگانه</span></button></li>
+<li><button type="button" class="guide" data-path="references/jomle.md"><span class="g-title">جمله</span><span class="g-desc">حذف فعل، وجه وصفی، «را»، مجهول، مطابقت، ابهام</span></button></li>
+<li><button type="button" class="guide" data-path="references/vazhe.md"><span class="g-title">واژه</span><span class="g-desc">حشو، درازنویسی، گرته‌برداری، جمع، غلط‌های رایج، وام‌واژه</span></button></li>
+<li><button type="button" class="guide" data-path="references/neshanegozari.md"><span class="g-title">نشانه‌گذاری</span><span class="g-desc">ویرگول و گیومه، عدد و تاریخ، عنوان و فهرست، متن دوزبانه</span></button></li>
+<li><button type="button" class="guide" data-path="references/tarjome.md"><span class="g-title">از انگلیسی به فارسی</span><span class="g-desc">عادت‌های نحوی، واژه‌های دام، تصویر فرهنگی، لحن</span></button></li>
+<li><button type="button" class="guide" data-path="references/manabe.md"><span class="g-title">منابع</span><span class="g-desc">قاعده‌ها از کجا آمده است و منابع کجا اختلاف دارند</span></button></li>
+  </ul>
+  <article id="reader" hidden></article>
+</section>
+
+<section id="word">
+  <h2>در ورد مایکروسافت</h2>
+  <p>افزونهٔ «ویراستار» همین بازبین را به پنجرهٔ کناریِ ورد می‌آورد. هنگام نوشتن فهرست یافته‌ها تازه می‌شود؛ با کلیک روی هر مورد همان واژه در متن برگزیده می‌شود و با «اعمال» درست می‌شود. اگر بخواهید اصلاح‌ها با «ردگیری تغییرها» ثبت می‌شود تا خودتان بپذیرید یا رد کنید. بازبینی در خودِ ورد انجام می‌شود و متن از رایانهٔ شما بیرون نمی‌رود.</p>
+  <p><a class="btn" href="https://github.com/roozbehks/AI_Editor_for_Persian_Language/tree/main/word-addin#readme" target="_blank" rel="noopener">راهنمای نصب</a> <a class="btn ghost" href="word/manifest.xml" target="_blank" rel="noopener">پروندهٔ manifest.xml</a></p>
+  <p class="note">این افزونه تازه است. منطقش با آزمون خودکار سنجیده شده است، ولی هنوز در نسخه‌های گوناگون ورد آزموده نشده است. اگر به مشکلی برخوردید در گیت‌هاب بنویسید.</p>
+</section>
+
+<section id="download">
+  <h2>بارگیری</h2>
+  <ul class="dl">
+    <li><div class="what"><strong>بستهٔ کامل</strong><small>مهارت Claude با شش راهنما، ابزار وارسی و نمونهٔ شیوهٔ خانگی. در Claude از بخش Customize و سپس Skills بارگذاری می‌شود.</small></div>
+      <button type="button" class="btn save-only" data-save="zip">بارگیری persian-writing.zip</button></li>
+    <li><div class="what"><strong>دستور کوتاه</strong><small>همان متن بالا در یک پرونده.</small></div>
+      <button type="button" class="btn ghost save-only" data-save="PROMPT.md">بارگیری PROMPT.md</button>
+      <button type="button" class="btn ghost nosave-only" data-copy="PROMPT.md">کپی متن</button></li>
+    <li><div class="what"><strong>ابزار وارسی</strong><small><code>fa_lint.py</code> با پایتون ۳ اجرا می‌شود و چیز دیگری نمی‌خواهد. درون بستهٔ کامل هم هست.</small></div>
+      <button type="button" class="btn ghost" data-copy="scripts/fa_lint.py">کپی کد</button></li>
+    <li><div class="what"><strong>نمونهٔ شیوهٔ خانگی</strong><small>واژه‌های برگزیده و ممنوع و قاعده‌های دلخواه خودتان را در این پرونده بگذارید.</small></div>
+      <button type="button" class="btn ghost save-only" data-save="scripts/house-example.json">بارگیری house-example.json</button>
+      <button type="button" class="btn ghost nosave-only" data-copy="scripts/house-example.json">کپی متن</button></li>
+  </ul>
+  <p class="note nosave-only">اگر دکمهٔ بارگیری را نمی‌بینید، این صفحه را در claude.ai باز کنید یا متن‌ها را کپی کنید.</p>
+  <p class="note" id="dl-status" role="status" aria-live="polite"></p>
+</section>
+
+<section id="about">
+  <h2>از کجا آمده است و چه نمی‌کند</h2>
+  <p>قاعده‌ها از «دستور خطّ فارسی» و «فرهنگ املایی خطّ فارسی» فرهنگستان زبان و ادب فارسی، شیوه‌نامهٔ ناشران و نوشته‌های ویراستاران گرفته و از نو نوشته شده است. فهرست منابع و جاهای اختلافشان در راهنمای «منابع» آمده است. متنِ خودِ منابع در بسته نیست.</p>
+  <p>ابزار روی ۴۴ متن منتشرشده خطای مکانیکیِ نادرست گزارش نکرد. در ۸۲۹ جملهٔ نادرست مطبوعاتی که صورت درستشان هم در دست بود، در ۱۵ درصد نشانهٔ خطای نگارشی را گرفت؛ بقیه خطای معنا و منطق بود که بازنویسی می‌خواهد. پس ابزار تور ایمنی است و جای ویراستار را نمی‌گیرد.</p>
+  <p>مرجع نخست فرهنگستان است: دستور خط فارسی، فرهنگ املایی خط فارسی و واژه‌های مصوب. جایی که فرهنگستان دو صورت را برابر می‌داند یکی برگزیده شده است، مثل «آن‌ها» و «کتاب‌ها». اگر شیوهٔ شما صورت دیگر است، در شیوهٔ خانگی عوضش کنید؛ آنجا یکدستی درون متن از خودِ انتخاب مهم‌تر است.</p>
+</section>
+
+<footer>
+  <p>گردآوری و تدوین: RKSVisions، با همکاری Claude. نسخهٔ ۱٫۱، آبان ۱۴۰۵. <a href="https://github.com/roozbehks/AI_Editor_for_Persian_Language" target="_blank" rel="noopener">منبع در گیت‌هاب</a></p>
+</footer>
+
+</div>
+
+<script type="application/json" id="sample-result">{"fixed": "لازم به ذکر است که پیشنهادات مربوطه توسط کمیته مورد بررسی قرار می‌گیرد و نتیجه آن متعاقباً به اطلاع کارمندان محترم رسانده می‌شود. اگرچه این فرایند زمان‌بر می‌باشد، اما ما معتقدیم که کیفیت کارها را بهتر می‌کند.", "nfix": 8, "rest": [{"code": "PHRASE", "level": "W", "msg": "«لازم به ذکر است» ← «گفتنی است» یا حذف", "a": "", "hit": "لازم به ذکر", "b": " است که پیشنهادات مربوطه توسط"}, {"code": "PL", "level": "W", "msg": "جمع: «پیشنهادات» ← «پیشنهادها»", "a": "لازم به ذکر است که ", "hit": "پیشنهادات", "b": " مربوطه توسط کمیته مورد بررسی"}, {"code": "FEM", "level": "W", "msg": "صفت در فارسی مؤنث نمی‌شود: «مربوطه» ← «مربوط»", "a": "لازم به ذکر است که پیشنهادات ", "hit": "مربوطه", "b": " توسط کمیته مورد بررسی قرار"}, {"code": "PASSIVE", "level": "W", "msg": "مجهول با «توسط»: اگر کنندهٔ کار را می‌گویید جمله را معلوم کنید", "a": "ذکر است که پیشنهادات مربوطه ", "hit": "توسط", "b": " کمیته مورد بررسی قرار"}, {"code": "LONG", "level": "W", "msg": "درازنویسی: «مورد … قرار دادن/گرفتن» ← فعل ساده («بررسی کرد»، «بررسی شد»)", "a": "پیشنهادات مربوطه توسط کمیته ", "hit": "مورد بررسی قرار می‌گیر", "b": "د و نتیجه آن متعاقباً به"}, {"code": "DBL-CONJ", "level": "W", "msg": "دو حرف ربط برای یک پیوند («اگرچه … اما»): یکی کافی است", "a": "محترم رسانده می‌شود. ", "hit": "اگرچه این فرایند زمان‌بر می‌باشد، اما", "b": " ما معتقدیم که کیفیت کارها را"}, {"code": "VB-BASH", "level": "W", "msg": "«می‌باشد» ← «است»، «می‌باشند» ← «هستند/‌اند»", "a": "اگرچه این فرایند زمان‌بر ", "hit": "می‌باشد", "b": "، اما ما معتقدیم که کیفیت"}]}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var FA = '۰۱۲۳۴۵۶۷۸۹';
+  function fa(n) { return String(n).replace(/[0-9]/g, function (d) { return FA[d]; }); }
+  var LEVEL = { E: 'خطا', W: 'هشدار', C: 'وارسی' };
+  var PY_GLUE = "\nimport json, fa_lint\ndef run_check(text, strict=False):\n    first = fa_lint.lint(text, {}, strict)\n    fixed, rest = fa_lint.fix_text(text, {}, strict)\n    nfix = sum(1 for f in first if f[5] is not None and (f[1] in 'EW' or f[0] in fa_lint.AUTOFIX_C))\n    out = []\n    for f in rest:\n        a, b = fixed[max(0, f[2] - 30):f[2]], fixed[f[3]:f[3] + 30]\n        if f[2] > 30 and ' ' in a:\n            a = a[a.index(' ') + 1:]\n        if f[3] + 30 < len(fixed) and ' ' in b:\n            b = b[:b.rindex(' ')]\n        out.append({'code': f[0], 'level': f[1], 'msg': f[4], 'a': a.replace('\\n', ' '), 'hit': fixed[f[2]:f[3]], 'b': b.replace('\\n', ' ')})\n    return json.dumps({'fixed': fixed, 'nfix': nfix, 'rest': out}, ensure_ascii=False)\n";
+
+  // ── بسته ──
+  var kitPromise = null;
+  function loadKit() {
+    if (!kitPromise) {
+      kitPromise = fetch('kit.json').then(function (r) {
+        if (!r.ok) { throw new Error('kit ' + r.status); }
+        return r.json();
+      }).catch(function (e) { kitPromise = null; throw e; });
+    }
+    return kitPromise;
+  }
+
+  // ── پیام کوتاه روی دکمه ──
+  function flash(btn, text) {
+    if (!btn) { return; }
+    if (!btn.dataset.label) { btn.dataset.label = btn.textContent; }
+    btn.textContent = text;
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () { btn.textContent = btn.dataset.label; }, 1800);
+  }
+  function copyText(text, btn) {
+    try {
+      navigator.clipboard.writeText(text).then(function () { flash(btn, 'کپی شد'); }, function () { flash(btn, 'کپی نشد'); });
+    } catch (e) { flash(btn, 'کپی نشد'); }
+  }
+
+  // ── وارسی ──
+  var lastFixed = '';
+  function render(res) {
+    lastFixed = res.fixed;
+    $('#fixed').textContent = res.fixed;
+    var n = { E: 0, W: 0, C: 0 };
+    res.rest.forEach(function (f) { n[f.level] += 1; });
+    var counts = $('#counts');
+    counts.textContent = '';
+    [['خودکار درست شد', res.nfix], ['خطا', n.E], ['هشدار', n.W], ['وارسی', n.C]].forEach(function (p) {
+      var li = document.createElement('li');
+      li.textContent = p[0] + ' ' + fa(p[1]);
+      counts.appendChild(li);
+    });
+    var finds = $('#finds');
+    finds.textContent = '';
+    res.rest.forEach(function (f) {
+      var li = document.createElement('li');
+      li.className = f.level;
+      var lv = document.createElement('span');
+      lv.className = 'lv';
+      lv.textContent = LEVEL[f.level] || f.level;
+      li.appendChild(lv);
+      li.appendChild(document.createTextNode(f.msg));
+      var ctx = document.createElement('span');
+      ctx.className = 'ctx';
+      ctx.appendChild(document.createTextNode('…' + f.a));
+      var mk = document.createElement('mark');
+      mk.textContent = f.hit;
+      ctx.appendChild(mk);
+      ctx.appendChild(document.createTextNode(f.b + '…'));
+      li.appendChild(ctx);
+      finds.appendChild(li);
+    });
+  }
+  try { render(JSON.parse($('#sample-result').textContent)); } catch (e) { /* نمونه نمایش داده نمی‌شود */ }
+
+  var pyPromise = null;
+  function bootPy() {
+    if (!pyPromise) {
+      pyPromise = (async function () {
+        if (typeof loadPyodide !== 'function') { throw new Error('no-pyodide'); }
+        var py = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+        var kit = await loadKit();
+        py.FS.writeFile('fa_lint.py', kit.files['scripts/fa_lint.py']);
+        py.runPython(PY_GLUE);
+        return py;
+      })().catch(function (e) { pyPromise = null; throw e; });
+    }
+    return pyPromise;
+  }
+  $('#run').addEventListener('click', async function () {
+    var btn = this, status = $('#status');
+    btn.disabled = true;
+    status.textContent = pyPromise ? 'در حال وارسی…' : 'موتور پایتون بار می‌شود…';
+    try {
+      var py = await bootPy();
+      status.textContent = 'در حال وارسی…';
+      var fn = py.globals.get('run_check');
+      var out = fn($('#src').value, $('#strict').checked);
+      fn.destroy();
+      render(JSON.parse(out));
+      status.textContent = 'انجام شد.';
+    } catch (e) {
+      status.textContent = 'موتور پایتون در این مرورگر بار نشد. بسته را بارگیری کنید و ابزار را روی رایانهٔ خودتان اجرا کنید.';
+    }
+    btn.disabled = false;
+  });
+  $('#copy-fixed').addEventListener('click', function () { copyText(lastFixed, this); });
+
+  // ── دستور کوتاه ──
+  function copyPrompt() { copyText($('#prompt-text').textContent, this); }
+  $('#copy-prompt').addEventListener('click', copyPrompt);
+  $('#copy-prompt-top').addEventListener('click', copyPrompt);
+
+  // ── راهنماها ──
+  var reader = $('#reader');
+  document.querySelectorAll('.guide').forEach(function (btn) {
+    btn.setAttribute('aria-pressed', 'false');
+    btn.addEventListener('click', async function () {
+      document.querySelectorAll('.guide').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      reader.hidden = false;
+      reader.textContent = 'در حال باز کردن…';
+      try {
+        var kit = await loadKit();
+        var md = kit.files[btn.dataset.path];
+        if (typeof marked === 'undefined') { throw new Error('no-marked'); }
+        reader.innerHTML = marked.parse(md);
+        reader.querySelectorAll('table').forEach(function (t) {
+          var w = document.createElement('div');
+          w.className = 'tbl';
+          t.parentNode.insertBefore(w, t);
+          w.appendChild(t);
+        });
+      } catch (e) {
+        var pre = document.createElement('pre');
+        pre.className = 'prompt';
+        pre.dir = 'rtl';
+        loadKit().then(function (kit) { pre.textContent = kit.files[btn.dataset.path]; reader.textContent = ''; reader.appendChild(pre); },
+          function () { reader.textContent = 'راهنما باز نشد. صفحه را دوباره بار کنید.'; });
+      }
+    });
+  });
+
+  // ── بارگیری و کپی پرونده‌ها ──
+  var downloads = null;
+  (async function () {
+    try {
+      if (window.claude && typeof window.claude.use === 'function') {
+        downloads = await window.claude.use('downloads');
+      }
+    } catch (e) { downloads = null; }
+    if (!downloads && !window.claude) {
+      // صفحهٔ عادی وب: مرورگر خودش پرونده را ذخیره می‌کند
+      downloads = {
+        save: function (o) {
+          var blob = (o.data instanceof Blob) ? o.data : new Blob([o.data], { type: 'text/plain;charset=utf-8' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = o.filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          return Promise.resolve();
+        }
+      };
+    }
+    if (downloads) { document.documentElement.classList.add('can-save'); }
+  })();
+  async function buildZip(kit) {
+    var zip = new JSZip();
+    Object.keys(kit.files).forEach(function (p) { zip.file('persian-writing/' + p, kit.files[p]); });
+    return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+  }
+  document.querySelectorAll('[data-save]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var st = $('#dl-status');
+      if (!downloads) { return; }
+      btn.disabled = true;
+      try {
+        var kit = await loadKit(), what = btn.dataset.save, name, data;
+        if (what === 'zip') { name = 'persian-writing.zip'; data = await buildZip(kit); }
+        else { name = what.split('/').pop(); data = kit.files[what]; }
+        await downloads.save({ filename: name, data: data });
+        st.textContent = name + ' ذخیره شد.';
+      } catch (e) {
+        st.textContent = (e && e.code === 'declined') ? 'بارگیری لغو شد.' : 'بارگیری انجام نشد. دوباره بکوشید یا متن را کپی کنید.';
+      }
+      btn.disabled = false;
+    });
+  });
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      // کپی باید در همان کلیک انجام شود؛ اگر بسته هنوز نیامده، کلیک دوم کپی می‌کند
+      if (window.__kit) { copyText(window.__kit.files[btn.dataset.copy], btn); return; }
+      flash(btn, 'آماده شد؛ دوباره بزنید');
+    });
+  });
+  loadKit().then(function (kit) { window.__kit = kit; }, function () {});
+})();
+</script>
+</body>
+</html>
